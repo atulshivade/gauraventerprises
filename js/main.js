@@ -181,19 +181,62 @@ function initProductTabs() {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
+    // Function to activate a specific tab
+    function activateTab(tabId) {
+        // Remove active class from all buttons and contents
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+
+        // Find and activate the correct button and content
+        const targetBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+        const targetContent = document.getElementById(tabId);
+        
+        if (targetBtn) targetBtn.classList.add('active');
+        if (targetContent) targetContent.classList.add('active');
+    }
+
+    // Tab button click handlers
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const tabId = btn.getAttribute('data-tab');
-
-            // Remove active class from all buttons and contents
-            tabBtns.forEach(b => b.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-
-            // Add active class to clicked button and corresponding content
-            btn.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
+            activateTab(tabId);
         });
     });
+
+    // Handle all links with data-tab attribute (dropdown menu and footer)
+    const productLinks = document.querySelectorAll('a[data-tab]');
+    productLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const tabId = link.getAttribute('data-tab');
+            
+            // Scroll to products section
+            const productsSection = document.getElementById('products');
+            if (productsSection) {
+                const headerHeight = document.getElementById('header').offsetHeight;
+                const targetPosition = productsSection.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+            
+            // Activate the corresponding tab after a short delay for smooth UX
+            setTimeout(() => {
+                activateTab(tabId);
+            }, 500);
+
+            // Close mobile menu if open
+            const navMenu = document.getElementById('nav-menu');
+            const navToggle = document.getElementById('nav-toggle');
+            if (navMenu) navMenu.classList.remove('active');
+            if (navToggle) navToggle.classList.remove('active');
+        });
+    });
+
+    // Make activateTab globally accessible
+    window.activateProductTab = activateTab;
 }
 
 /**
